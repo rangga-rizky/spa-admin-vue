@@ -15,7 +15,7 @@
           <img src="admin-lte/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
-          <a href="#" class="d-block">Alexander Pierce</a>
+          <a href="#" class="d-block">{{name}}</a>
         </div>
       </div>
 
@@ -65,10 +65,45 @@
 
 <script>
     export default {
+        data(){
+          return {
+            name:"",
+            config: {
+                headers: {
+                  'Content-Type': 'application/json' ,
+                  'Authorization' : 'Bearer '+ localStorage.getItem("token"),
+                },
+            },
+          }
+        },
+
+        created(){
+          this.fetch();
+        },
+        
         methods: {
           isActive(menuItem) {
             return this.$route.name === menuItem;
           },
-        } 
+
+          fetch() {
+		    	axios.get('/api/users/current',this.config)
+			        .then(({data}) => {
+			        	//console.log(data);
+				        this.name = data.name;
+				      })
+			        .catch((error) => {	     
+					   if(error.response.status == 401){
+					   	alert("Token Expired");
+			            this.$store.dispatch('logout').then(() => {
+					    	this.$router.push("/login");
+					 	});
+			           }else{			           	
+			          		alert("Terjadi Kesalahan pada server");
+			           } 
+		        });  
+		    },
+        },
+        
     }
 </script>

@@ -96,7 +96,8 @@
 </template>
 <script>
     export default {
-    	 data() {
+		props: ['id_notif'],
+    	data() {
 		    return {
 		      paginator: {},
 		      items:[],
@@ -117,7 +118,11 @@
 
 		  methods: {
 		    fetch() {
-		    	axios.get('/api/items?page='+this.paginator.current_page,this.config)
+				let readNotif = "";
+				if(this.id_notif !== undefined){
+					readNotif = "&read="+this.id_notif;
+				}
+		    	axios.get('/api/items?page='+this.paginator.current_page+readNotif,this.config)
 			        .then(({data}) => {
 			        	//console.log(data);
 				        this.paginator = data.paginator;

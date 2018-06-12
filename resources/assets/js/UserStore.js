@@ -1,5 +1,6 @@
 import Vuex from 'vuex';
 import Vue from 'vue';
+import jwt_decode from 'jwt-decode'
 
 Vue.use(Vuex);
 
@@ -8,6 +9,8 @@ const LOGIN_SUCCESS = "LOGIN_SUCCESS";
 const LOGOUT = "LOGOUT";
 const LOGIN_FAILED = "LOGIN_FAILED";
 const SHOW_SUCCESS = "SHOW_SUCCESS";
+const SET_NOTIF = "SET_NOTIF";
+const ADD_NOTIF = "ADD_NOTIF";
 
 
 const userStore = new Vuex.Store({
@@ -18,15 +21,24 @@ const userStore = new Vuex.Store({
     isError : false,
     messages : "",
     isSuccess : false,
+    user:{},
+    notifications : []
   },
 
   mutations: {
     [LOGIN] (state) {
       state.isPending = true;
     },
-    [LOGIN_SUCCESS] (state) {
+    [LOGIN_SUCCESS] (state,user) {
       state.isLoggedIn = true;
       state.isPending = false;
+      state.user = user;
+    },
+    [SET_NOTIF] (state,notifications) {
+      state.notifications = notifications;
+    },
+    [ADD_NOTIF] (state,notification) {
+      state.notifications.push(notification);
     },
     [LOGIN_FAILED] (state,message) {
       state.isPending = false;
@@ -34,6 +46,7 @@ const userStore = new Vuex.Store({
       state.messages = message;
     },
     [LOGOUT](state) {
+      state.user = {};
       state.isLoggedIn = false;
     },
      [SHOW_SUCCESS](state,message) {
@@ -55,7 +68,8 @@ const userStore = new Vuex.Store({
         },config)
         .then(function (response) {              
           localStorage.setItem("token", response.data.data.token);
-          commit(LOGIN_SUCCESS);          
+          const decoded = jwt_decode(response.data.data.token);
+          commit(LOGIN_SUCCESS,decoded);          
           resolve();
         })
         .catch(function (error) {    
@@ -78,6 +92,37 @@ const userStore = new Vuex.Store({
      success({ commit },message) {
        commit(SHOW_SUCCESS,message);
      },
+
+     addNotif({ commit },notification) {
+      commit(ADD_NOTIF,notification);
+    },
+
+     getNotification({ commit }) {
+      let notifications;
+      var config = {
+        headers: {
+          'Content-Type': 'application/json' ,
+          'Authorization' : 'Bearer '+ localStorage.getItem("token"),
+        },
+       };
+       return new Promise(resolve => {
+        axios.get('/api/notifications',config)
+       .then(function (response) {            
+         commit(SET_NOTIF,response.data);      
+         resolve();
+       })
+       .catch(function (error) {    
+         var errorMsg = "";      
+         if(error.response.status == 401){
+           errorMsg = error.response.data.error;
+         }else{
+           errorMsg = "Terjadi Kesalahan pada server.";
+         }
+         resolve();
+       });
+      });
+    },
+     
    },
 
    getters: {
@@ -99,6 +144,14 @@ const userStore = new Vuex.Store({
      messages(state){
       return state.messages;
     },
+
+    getUid(state){
+      return state.user.sub;
+    },
+
+    getNotifications(state){
+      return state.notifications;
+    }
    },
 
 });

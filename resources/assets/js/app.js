@@ -14,6 +14,9 @@ import userStore from  './UserStore';
 window.Vue = require('vue');
 Vue.use(VueRouter);
 
+
+window._ = require('lodash');
+
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
@@ -25,6 +28,8 @@ Vue.component('navbar', require('./components/Navbar.vue'));
 Vue.component('layout', require('./components/Layout.vue'));
 Vue.component('login', require('./components/Login.vue'));
 Vue.component('sidebar', require('./components/Sidebar.vue'))
+Vue.component('notification-list', require('./components/NotificationList.vue'))
+Vue.component('notification', require('./components/Notification.vue'))
 Vue.component('pagination', require('./components/Pagination.vue'));
 Vue.component('item-option', require('./components/items/ItemOption.vue'));
 Vue.component('detail-form', require('./components/transactions/DetailForm.vue'));

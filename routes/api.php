@@ -17,10 +17,12 @@ Route::post('register', 'AuthController@register');
 Route::post('login', 'AuthController@login');
 Route::post('recover', 'AuthController@recover');
 Route::group(['middleware' => ['jwt.auth']], function() {
-    
-    Route::get('logout', 'AuthController@logout');
-    
-    Route::get('items', 'ItemController@index');
+    Route::get('/notifications', 'NotificationController@index');
+    Route::get('/users/current', 'UserController@getCurrent');
+    Route::post('/notifications/read/{id}', 'NotificationController@read');
+    Route::get('logout', 'AuthController@logout'); 
+   
+    Route::get('items', 'ItemController@index');  
     Route::get('items/search/{name}', 'ItemController@searchByName');    
     Route::get('items/array', 'ItemController@array_data');
     Route::post('items', 'ItemController@store');
